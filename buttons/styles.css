@@ -42,8 +42,8 @@ body {
     display: flex;
     flex-direction: row;
     padding-right: calc(var(--colour-button-size, 7vh) * 0.26);
-    justify-content: center; /* Center horizontally */
-    align-items: center;    /* Center vertically */
+    justify-content: center;
+    align-items: center;
 }
 .recent-colour {
     width: calc(var(--colour-button-size, 7vh) * 0.5);
@@ -65,3 +65,45 @@ body {
     border-radius: 1vh;
     margin-left: 8%;
 }
+.color-picker-popup {
+    position: relative;
+    width: 300px;
+    height: 260px;
+    background-color: #fff;
+    border: 1px solid #ccc;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    padding: 10px;
+  }
+  
+  #color-canvas {
+    width: 100%;
+    height: 200px;
+    cursor: crosshair;
+  }
+  
+  #selector-dot {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    background-color: #000;
+    border: 2px solid #fff;
+    border-radius: 50%;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+  }
+  
+  .color-inputs {
+    display: flex;
+    gap: 10px;
+    margin-top: 10px;
+    align-items: center;
+  }
+  
+  .color-inputs input {
+    width: 50px;
+  }
+  
+  #toggle-mode {
+    cursor: pointer;
+  }
+  

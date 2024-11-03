@@ -15,10 +15,19 @@
                 <button class="recent-colour" id="recent-colour-4"></button>
                 <button id="colour-picker-button"></button>
             </div>
-            <div id="colour-picker">
-                
-            </div>
+            <div class="color-picker-popup">
+                <canvas id="color-canvas" width="300" height="200"></canvas>
+                <div id="selector-dot"></div>
+                <div class="color-inputs">
+                  <label>R: <input type="number" id="r-input" min="0" max="255" value="255"></label>
+                  <label>G: <input type="number" id="g-input" min="0" max="255" value="0"></label>
+                  <label>B: <input type="number" id="b-input" min="0" max="255" value="0"></label>
+                  <button id="toggle-mode">HSL</button>
+                </div>
+              </div>
+              
 
         </div>
+        <script src="scripts.js"></script>
     </body>
 </html>
