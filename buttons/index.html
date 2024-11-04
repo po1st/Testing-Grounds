@@ -1,7 +1,197 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <link rel="stylesheet" href="styles.css">
+        <style>body {
+            background-color: black;
+        }
+        .colour-menu {
+            display: flex;
+            flex-direction: row;
+        }
+        #colour-menu-button {
+            width: var(--colour-button-size, 7vh);
+            height: var(--colour-button-size, 7vh);
+            background: conic-gradient(#FF0000, #FF8400, #EEFF00, #2bd700, #00D4FF, #1A00FF, #FF00FF, #FF0000);
+            border: none;
+            border-radius: 100%;
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #colour-menu-button::before {
+            content: '';
+            width: calc(var(--colour-button-size, 7vh) * 0.8);
+            height: calc(var(--colour-button-size, 7vh) * 0.8);
+            border-radius: 100%;
+            background-color: white;
+            position: absolute;
+        }
+        #colour-menu-button::after {
+            content: '';
+            width: calc(var(--colour-button-size, 7vh) * 0.6);
+            height: calc(var(--colour-button-size, 7vh) * 0.6);
+            border-radius: 100%;
+            background-color: var(--inner-circle-colour, black); 
+            position: absolute;
+        }
+        #colour-menu-recents {
+            position: relative;
+            left: calc(var(--colour-button-size, 7vh) * 0.14);
+            height: var(--colour-button-size, 7vh);
+            width: calc(var(--colour-button-size, 7vh) * 3);
+            background-color: white;
+            border-radius: 1vh;
+            display: flex;
+            flex-direction: row;
+            padding-right: calc(var(--colour-button-size, 7vh) * 0.26);
+            justify-content: center;
+            align-items: center;
+        }
+        .recent-colour {
+            width: calc(var(--colour-button-size, 7vh) * 0.5);
+            height: calc(var(--colour-button-size, 7vh) * 0.5);
+            margin-left: auto;
+            margin-top: auto;
+            margin-bottom: auto;
+            border: none;
+            background-color: #D9D9D9;
+            border-radius: 0.5vh;
+        }
+        #colour-picker-button {
+            position: absolute;
+            bottom: 8%;
+            width: 20%;
+            border: none;
+            background-color: #D9D9D9;
+            height: 7%;
+            border-radius: 1vh;
+            margin-left: 8%;
+        }
+
+        /* Color Picker Styles */
+        #color-picker-container {
+            position: absolute;
+            top: calc(var(--colour-button-size, 7vh) * 1.28);
+            left: calc(var(--colour-button-size, 7vh) * 1.28);
+            width: calc(var(--colour-button-size, 7vh) * 3);
+            padding: calc(var(--colour-button-size, 7vh) * 0.13);
+            background: white;
+            border-radius: 1vh;
+            display: none;
+            z-index: 1000;
+        }
+
+        .gradient-box {
+            width: 100%;
+            height: calc(var(--colour-button-size, 7vh) * 2);
+            position: relative;
+            margin-bottom: 10px;
+            cursor: crosshair;
+        }
+
+        .gradient-box::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to bottom, transparent, #000);
+        }
+
+        .gradient-box::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(to right, #fff, transparent);
+        }
+
+        .picker-cursor {
+            width: 10px;
+            height: 10px;
+            border: 2px solid white;
+            border-radius: 50%;
+            position: absolute;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 1;
+            box-shadow: 0 0 0 1px black;
+        }
+
+        .slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 10px;
+            border-radius: 5px;
+            outline: none;
+            margin: 8px 0;
+        }
+
+        #hue-slider {
+            background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+        }
+
+        #alpha-slider-bg {
+            position: relative;
+            height: 10px;
+            margin: 8px 0;
+            border-radius: 5px;
+            background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+                            linear-gradient(-45deg, #ccc 25%, transparent 25%),
+                            linear-gradient(45deg, transparent 75%, #ccc 75%),
+                            linear-gradient(-45deg, transparent 75%, #ccc 75%);
+            background-size: 10px 10px;
+            background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+        }
+
+        #alpha-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            margin: 0;
+            background: linear-gradient(to right, transparent, black);
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 14px;
+            height: 14px;
+            background: #fff;
+            border-radius: 50%;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            position: relative;
+            margin-top: -2px;
+        }
+
+        .color-display {
+            display: flex;
+            gap: 10px;
+            align-items: stretch;
+        }
+
+        .color-value {
+            flex: 1;
+            padding: 8px;
+            background: #f0f0f0;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .color-preview {
+            width: 40px;
+            border-radius: 5px;
+            border: 1px solid #ddd;
+        }
+        </style>
         <title>Testing grounds</title>
     </head>
 
@@ -15,19 +205,135 @@
                 <button class="recent-colour" id="recent-colour-4"></button>
                 <button id="colour-picker-button"></button>
             </div>
-            <div class="color-picker-popup">
-                <canvas id="color-canvas" width="300" height="200"></canvas>
-                <div id="selector-dot"></div>
-                <div class="color-inputs">
-                  <label>R: <input type="number" id="r-input" min="0" max="255" value="255"></label>
-                  <label>G: <input type="number" id="g-input" min="0" max="255" value="0"></label>
-                  <label>B: <input type="number" id="b-input" min="0" max="255" value="0"></label>
-                  <button id="toggle-mode">HSL</button>
-                </div>
-              </div>
-              
-
         </div>
-        <script src="scripts.js"></script>
+
+        <div id="color-picker-container">
+            <div class="gradient-box" id="gradient-box">
+                <div class="picker-cursor" id="picker-cursor"></div>
+            </div>
+            <div class="slider-container">
+                <input type="range" min="0" max="360" value="180" class="slider" id="hue-slider">
+                <div id="alpha-slider-bg">
+                    <input type="range" min="0" max="100" value="100" class="slider" id="alpha-slider">
+                </div>
+            </div>
+            <div class="color-display">
+                <div class="color-value" id="hex-value">#F1F1F1FF</div>
+                <div class="color-preview" id="color-preview"></div>
+            </div>
+        </div>
+
+        <script>
+const box = document.getElementById('gradient-box');
+const cursor = document.getElementById('picker-cursor');
+const hueSlider = document.getElementById('hue-slider');
+const alphaSlider = document.getElementById('alpha-slider');
+const hexValue = document.getElementById('hex-value');
+const colorPreview = document.getElementById('color-preview');
+const colorPickerButton = document.getElementById('colour-picker-button');
+const colorPickerContainer = document.getElementById('color-picker-container');
+const colorMenuButton = document.getElementById('colour-menu-button');
+
+let isDragging = false;
+let currentHue = 180; // default hue (can be anything since it won't matter for black)
+let currentSaturation = 0; // set saturation to 0 for black
+let currentValue = 0; // set value to 0 for black
+let currentAlpha = 100; // full opacity
+
+colorPickerButton.addEventListener('click', (e) => {
+    e.stopPropagation();
+    colorPickerContainer.style.display = colorPickerContainer.style.display === 'none' ? 'block' : 'none';
+});
+
+document.addEventListener('click', (e) => {
+    if (!colorPickerContainer.contains(e.target) && 
+        e.target !== colorPickerButton) {
+        colorPickerContainer.style.display = 'none';
+    }
+});
+
+function updateColorFromHSV(h, s, v, a) {
+    // Handle the case for black directly
+    if (s === 0 && v === 0) {
+        return '#000000' + ((a / 100) * 255).toString(16).padStart(2, '0');
+    }
+
+    let f = (n, k = (n + h / 60) % 6) => v * (1 - s * Math.max(Math.min(k, 4 - k, 1), 0));
+    let r = Math.round(f(5) * 255);
+    let g = Math.round(f(3) * 255);
+    let b = Math.round(f(1) * 255);
+    const alpha = Math.round((a / 100) * 255);
+    const hex = '#' + [r, g, b, alpha].map(x => {
+        const hex = x.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
+    return hex;
+}
+
+function updateAlphaSlider() {
+    const color = updateColorFromHSV(currentHue, currentSaturation / 100, currentValue / 100, 100);
+    alphaSlider.style.background = `linear-gradient(to right, ${color}00, ${color})`;
+}
+
+function updateColor(e) {
+    const rect = box.getBoundingClientRect();
+    let x, y;
+    if (e) {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+    } else {
+        x = (currentSaturation / 100) * rect.width;
+        y = ((100 - currentValue) / 100) * rect.height;
+    }
+    x = Math.max(0, Math.min(x, rect.width));
+    y = Math.max(0, Math.min(y, rect.height));
+    
+    cursor.style.left = x + 'px';
+    cursor.style.top = y + 'px';
+    
+    currentSaturation = (x / rect.width) * 100;
+    currentValue = 100 - (y / rect.height) * 100;
+    
+    const hex = updateColorFromHSV(currentHue, currentSaturation / 100, currentValue / 100, currentAlpha);
+    hexValue.textContent = hex;
+    colorPreview.style.backgroundColor = hex;
+    colorMenuButton.style.setProperty('--inner-circle-colour', hex);
+    updateAlphaSlider();
+}
+
+function updateHue() {
+    currentHue = parseInt(hueSlider.value);
+    box.style.backgroundColor = `hsl(${currentHue}, 100%, 50%)`;
+    updateColor();
+}
+
+function updateAlpha() {
+    currentAlpha = parseInt(alphaSlider.value);
+    updateColor();
+}
+
+box.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    updateColor(e);
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        updateColor(e);
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    isDragging = false;
+});
+
+hueSlider.addEventListener('input', updateHue);
+alphaSlider.addEventListener('input', updateAlpha);
+
+// Initialize the color to black
+updateHue();
+updateColor();
+
+        </script>
     </body>
 </html>

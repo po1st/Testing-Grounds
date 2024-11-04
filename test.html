@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+.gradient-box {
+    width: 300px;
+    height: 150px;
+    position: relative;
+    margin-bottom: 20px;
+    cursor: crosshair;
+}
+
+.gradient-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to bottom, transparent, #000);
+}
+
+.gradient-box::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(to right, #fff, transparent);
+}
+
+.picker-cursor {
+    width: 10px;
+    height: 10px;
+    border: 2px solid white;
+    border-radius: 50%;
+    position: absolute;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
+    z-index: 1;
+    box-shadow: 0 0 0 1px black;
+}
+
+.slider-container {
+    width: 300px;
+    margin-bottom: 15px;
+}
+
+.slider {
+    -webkit-appearance: none;
+    width: 100%;
+    height: 10px;
+    border-radius: 5px;
+    outline: none;
+    margin: 8px 0;
+    background-clip: padding-box;
+}
+
+#hue-slider {
+    background: linear-gradient(to right, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff, #ff0000);
+}
+
+#alpha-slider-bg {
+    position: relative;
+    height: 10px;
+    margin: 8px 0;
+    border-radius: 5px;
+    background-image: linear-gradient(45deg, #ccc 25%, transparent 25%),
+                      linear-gradient(-45deg, #ccc 25%, transparent 25%),
+                      linear-gradient(45deg, transparent 75%, #ccc 75%),
+                      linear-gradient(-45deg, transparent 75%, #ccc 75%);
+    background-size: 10px 10px;
+    background-position: 0 0, 0 5px, 5px -5px, -5px 0px;
+}
+
+#alpha-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    margin: 0;
+    background: linear-gradient(to right, transparent, black);
+}
+
+.slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 14px;
+    height: 14px;
+    background: #fff;
+    border-radius: 50%;
+    border: 2px solid #ddd;
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+    position: relative;
+    margin-top: -2px;
+}
+
+.slider:focus::-webkit-slider-thumb {
+    border-color: #aaa;
+}
+
+.color-display {
+    width: 300px;
+    display: flex;
+    gap: 10px;
+    align-items: stretch;
+}
+
+.color-value {
+    flex: 1;
+    padding: 8px 12px;
+    background: #f0f0f0;
+    border-radius: 5px;
+    font-family: monospace;
+    border: 1px solid #ddd;
+}
+
+.color-preview {
+    width: 50px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+.slider:focus {
+    outline: none;
+}
+</style>
+</head>
+<body>
+<div class="gradient-box" id="gradient-box">
+    <div class="picker-cursor" id="picker-cursor"></div>
+</div>
+<div class="slider-container">
+    <input type="range" min="0" max="360" value="180" class="slider" id="hue-slider">
+    <div id="alpha-slider-bg">
+        <input type="range" min="0" max="100" value="100" class="slider" id="alpha-slider">
+    </div>
+</div>
+<div class="color-display">
+    <div class="color-value" id="hex-value">#D9D9D9FF</div>
+    <div class="color-preview" id="color-preview"></div>
+</div>
+
+<script>
+const box = document.getElementById('gradient-box');
+const cursor = document.getElementById('picker-cursor');
+const hueSlider = document.getElementById('hue-slider');
+const alphaSlider = document.getElementById('alpha-slider');
+const hexValue = document.getElementById('hex-value');
+const colorPreview = document.getElementById('color-preview');
+
+let isDragging = false;
+let currentHue = 180;
+let currentSaturation = 50;
+let currentValue = 50;
+let currentAlpha = 100;
+
+function updateColorFromHSV(h, s, v, a) {
+    let f = (n, k = (n + h/60) % 6) => v - v * s * Math.max(Math.min(k, 4-k, 1), 0);
+    let r = Math.round(f(5) * 255);
+    let g = Math.round(f(3) * 255);
+    let b = Math.round(f(1) * 255);
+    const alpha = Math.round((a / 100) * 255);
+    const hex = '#' + [r, g, b, alpha].map(x => {
+        const hex = x.toString(16);
+        return hex.length === 1 ? '0' + hex : hex;
+    }).join('');
+    return hex;
+}
+
+function updateAlphaSlider() {
+    const color = updateColorFromHSV(currentHue, currentSaturation/100, currentValue/100, 100);
+    alphaSlider.style.background = `linear-gradient(to right, ${color}00, ${color})`;
+}
+
+function updateColor(e) {
+    const rect = box.getBoundingClientRect();
+    let x, y;
+    if (e) {
+        x = e.clientX - rect.left;
+        y = e.clientY - rect.top;
+    } else {
+        x = (currentSaturation / 100) * rect.width;
+        y = ((100 - currentValue) / 100) * rect.height;
+    }
+    x = Math.max(0, Math.min(x, rect.width));
+    y = Math.max(0, Math.min(y, rect.height));
+    
+    cursor.style.left = x + 'px';
+    cursor.style.top = y + 'px';
+    
+    currentSaturation = (x / rect.width) * 100;
+    currentValue = 100 - (y / rect.height) * 100;
+    
+    const hex = updateColorFromHSV(currentHue, currentSaturation/100, currentValue/100, currentAlpha);
+    hexValue.textContent = hex;
+    colorPreview.style.backgroundColor = hex;
+    updateAlphaSlider();
+}
+
+function updateHue() {
+    currentHue = parseInt(hueSlider.value);
+    box.style.backgroundColor = `hsl(${currentHue}, 100%, 50%)`;
+    updateColor();
+}
+
+function updateAlpha() {
+    currentAlpha = parseInt(alphaSlider.value);
+    updateColor();
+}
+
+box.addEventListener('mousedown', (e) => {
+    isDragging = true;
+    updateColor(e);
+});
+
+document.addEventListener('mousemove', (e) => {
+    if (isDragging) {
+        updateColor(e);
+    }
+});
+
+document.addEventListener('mouseup', () => {
+    isDragging = false;
+});
+
+hueSlider.addEventListener('input', updateHue);
+alphaSlider.addEventListener('input', updateAlpha);
+
+updateHue();
+updateColor();
+</script>
+</body>
+</html>
